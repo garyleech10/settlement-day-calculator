@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free Rent Roll Settlement Calculator for Real Estate Agencies - Calculate vendor and purchaser portions when selling a rent roll">
+    <meta name="keywords" content="rent roll, settlement calculator, real estate, property management, vendor, purchaser">
+    <meta name="author" content="Real Estate Settlement Tools">
+    <title>Rent Roll Settlement Calculator - Real Estate Agency Sale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d3748;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .header-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+
+        .info-box {
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-box label {
+            font-weight: bold;
+            color: #4a5568;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-box .value {
+            font-size: 1.2em;
+            color: #2d3748;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 1200px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+        }
+
+        th {
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        tbody tr:hover {
+            background-color: #f7fafc;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            text-align: right;
+        }
+
+        .currency {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .vendor-amount {
+            background-color: #e6fffa;
+            color: #065666;
+            font-weight: bold;
+        }
+
+        .purchaser-amount {
+            background-color: #fef5e6;
+            color: #7c2d12;
+            font-weight: bold;
+        }
+
+        .summary {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-box {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .summary-box h3 {
+            margin-top: 0;
+            color: #4a5568;
+            font-size: 1.1em;
+        }
+
+        .summary-amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .vendor-summary {
+            border-top: 4px solid #38b2ac;
+        }
+
+        .vendor-summary .summary-amount {
+            color: #065666;
+        }
+
+        .purchaser-summary {
+            border-top: 4px solid #ed8936;
+        }
+
+        .purchaser-summary .summary-amount {
+            color: #7c2d12;
+        }
+
+        .total-summary {
+            border-top: 4px solid #667eea;
+        }
+
+        .total-summary .summary-amount {
+            color: #553c9a;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-group {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .add-row-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        }
+
+        .print-btn {
+            background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+        }
+
+        .remove-btn {
+            background: #e53e3e;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .instructions {
+            background: #fef5e6;
+            border-left: 4px solid #ed8936;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+            color: #7c2d12;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #744210;
+        }
+
+        .instructions li {
+            margin: 5px 0;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .header-info {
+                grid-template-columns: 1fr;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+
+            button, .instructions, .button-group, .footer {
+                display: none;
+            }
+
+            .table-container {
+                overflow: visible;
+            }
+
+            table {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏘️ Rent Roll Settlement Calculator</h1>
+        <p class="subtitle">Calculate vendor and purchaser rent portions for real estate agency settlements</p>
+        
+        <div class="instructions">
+            <h3>📋 Quick Instructions:</h3>
+            <ol>
+                <li>Settlement Date is pre-set to <strong>September 24, 2025</strong></li>
+                <li>Enter each property's details in the table below</li>
+                <li>The calculator automatically splits rent between vendor (up to Sept 23) and purchaser (from Sept 24)</li>
+                <li>Review the summary totals at the bottom</li>
+                <li>Export to CSV or Print for your records and solicitor review</li>
+            </ol>
+        </div>
+
+        <div class="header-info">
+            <div class="info-box">
+                <label>Settlement Date:</label>
+                <div class="value" id="settlementDate">September 24, 2025</div>
+            </div>
+            <div class="info-box">
+                <label>Total Properties:</label>
+                <div class="value" id="totalProperties">0</div>
+            </div>
+            <div class="info-box">
+                <label>Calculation Date:</label>
+                <div class="value" id="calcDate"></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="rentTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Property Address</th>
+                        <th>Tenant Name</th>
+                        <th>Rent Amount ($)</th>
+                        <th>Frequency</th>
+                        <th>Last Payment Date</th>
+                        <th>Payment Covers Until</th>
+                        <th>Daily Rate ($)</th>
+                        <th>Days Pre-Settlement</th>
+                        <th>Days Post-Settlement</th>
+                        <th>Vendor Portion ($)</th>
+                        <th>Purchaser Portion ($)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button-group">
+            <button onclick="addRow()" class="add-row-btn">➕ Add Property</button>
+            <button onclick="addMultipleRows()" class="add-row-btn">➕ Add 10 Properties</button>
+            <button onclick="exportToCSV()" class="export-btn">📥 Export to CSV</button>
+            <button onclick="window.print()" class="print-btn">🖨️ Print Report</button>
+            <button onclick="clearAll()" class="clear-btn">🗑️ Clear All</button>
+        </div>
+
+        <div class="summary">
+            <div class="summary-box vendor-summary">
+                <h3>Vendor (Your) Portion</h3>
+                <div class="summary-amount" id="vendorTotal">$0.00</div>
+                <small>Rent up to September 23, 2025</small>
+            </div>
+            <div class="summary-box purchaser-summary">
+                <h3>Purchaser Portion</h3>
+                <div class="summary-amount" id="purchaserTotal">$0.00</div>
+                <small>Rent from September 24, 2025</small>
+            </div>
+            <div class="summary-box total-summary">
+                <h3>Total Rent Held in Trust</h3>
+                <div class="summary-amount" id="totalRent">$0.00</div>
+                <small>Should match your trust account balance</small>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Rent Roll Settlement Calculator | Free tool for real estate agencies</p>
+            <p>For settlement date: September 24, 2025 | Vendor receives rent up to Sept 23 | Purchaser receives rent from Sept 24</p>
+        </div>
+    </div>
+
+    <script>
+        const SETTLEMENT_DATE = new Date('2025-09-24');
+        let rowCount = 0;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            document.getElementById('calcDate').textContent = new Date().toLocaleDateString('en-AU', { 
+                year: 'numeric', month: 'long', day: 'numeric' 
+            });
+
+            // Load saved data if exists
+            loadSavedData();
+
+            // Add initial rows if no saved data
+            if (rowCount === 0) {
+                for (let i = 0; i < 5; i++) {
+                    addRow();
+                }
+            }
+        });
+
+        function addRow() {
+            rowCount++;
+            const tbody = document.getElementById('tableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${rowCount}</td>
+                <td><input type="text" placeholder="123 Main St" onchange="calculateRow(${rowCount}); saveData();" id="address${rowCount}"></td>
+                <td><input type="text" placeholder="John Smith" onchange="calculateRow(${rowCount}); saveData();" id="tenant${rowCount}"></td>
+                <td><input type="number" step="0.01" placeholder="500.00" onchange="calculateRow(${rowCount}); saveData();" id="rent${rowCount}"></td>
+                <td>
+                    <select onchange="calculateRow(${rowCount}); saveData();" id="freq${rowCount}">
+                        <option value="">Select...</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="fortnightly">Fortnightly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </td>
+                <td><input type="date" onchange="calculateRow(${rowCount}); saveData();" id="lastPay${rowCount}"></td>
+                <td><input type="date" onchange="calculateRow(${rowCount}); saveData();" id="coverUntil${rowCount}"></td>
+                <td class="currency" id="daily${rowCount}">$0.00</td>
+                <td id="daysPre${rowCount}">0</td>
+                <td id="daysPost${rowCount}">0</td>
+                <td class="currency vendor-amount" id="vendor${rowCount}">$0.00</td>
+                <td class="currency purchaser-amount" id="purchaser${rowCount}">$0.00</td>
+                <td><button onclick="removeRow(this)" class="remove-btn">❌</button></td>
+            `;
+            tbody.appendChild(row);
+            updatePropertyCount();
+        }
+
+        function addMultipleRows() {
+            for (let i = 0; i < 10; i++) {
+                addRow();
+            }
+        }
+
+        function removeRow(button) {
+            if (confirm('Remove this property from the calculation?')) {
+                button.closest('tr').remove();
+                updatePropertyCount();
+                updateTotals();
+                renumberRows();
+                saveData();
+            }
+        }
+
+        function renumberRows() {
+            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].getElementsByTagName('td')[0].textContent = i + 1;
+            }
+        }
+
+        function calculateRow(rowNum) {
+            const rent = parseFloat(document.getElementById(`rent${rowNum}`).value) || 0;
+            const freq = document.getElementById(`freq${rowNum}`).value;
+            const lastPayDate = document.getElementById(`lastPay${rowNum}`).value;
+            const coverUntilDate = document.getElementById(`coverUntil${rowNum}`).value;
+
+            if (rent && freq && lastPayDate && coverUntilDate) {
+                const startDate = new Date(lastPayDate);
+                const endDate = new Date(coverUntilDate);
+                
+                // Calculate daily rate based on frequency
+                let dailyRate = 0;
+                if (freq === 'weekly') {
+                    dailyRate = rent / 7;
+                } else if (freq === 'fortnightly') {
+                    dailyRate = rent / 14;
+                } else if (freq === 'monthly') {
+                    // Use actual days in the month
+                    const daysInPeriod = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                    dailyRate = rent / daysInPeriod;
+                }
+
+                // Calculate days before and after settlement
+                let daysPre = 0;
+                let daysPost = 0;
+                
+                // Settlement date is September 24, 2025
+                // Vendor gets rent up to and including September 23
+                // Purchaser gets rent from September 24 onwards
+                
+                const vendorCutoff = new Date('2025-09-23');
+                vendorCutoff.setHours(23, 59, 59, 999);
+                
+                if (endDate < SETTLEMENT_DATE) {
+                    // All rent belongs to vendor
+                    daysPre = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                    daysPost = 0;
+                } else if (startDate >= SETTLEMENT_DATE) {
+                    // All rent belongs to purchaser
+                    daysPre = 0;
+                    daysPost = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                } else {
+                    // Split between vendor and purchaser
+                    daysPre = Math.round((vendorCutoff - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                    daysPost = Math.round((endDate - SETTLEMENT_DATE) / (1000 * 60 * 60 * 24)) + 1;
+                }
+
+                // Update display
+                document.getElementById(`daily${rowNum}`).textContent = `$${dailyRate.toFixed(2)}`;
+                document.getElementById(`daysPre${rowNum}`).textContent = daysPre;
+                document.getElementById(`daysPost${rowNum}`).textContent = daysPost;
+                document.getElementById(`vendor${rowNum}`).textContent = `$${(dailyRate * daysPre).toFixed(2)}`;
+                document.getElementById(`purchaser${rowNum}`).textContent = `$${(dailyRate * daysPost).toFixed(2)}`;
+                
+                updateTotals();
+            }
+        }
+
+        function updateTotals() {
+            let vendorTotal = 0;
+            let purchaserTotal = 0;
+
+            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
+            for (let row of rows) {
+                const vendorCell = row.querySelector('[id^="vendor"]');
+                const purchaserCell = row.querySelector('[id^="purchaser"]');
+                
+                if (vendorCell && purchaserCell) {
+                    vendorTotal += parseFloat(vendorCell.textContent.replace('$', '') || 0);
+                    purchaserTotal += parseFloat(purchaserCell.textContent.replace('$', '') || 0);
+                }
+            }
+
+            document.getElementById('vendorTotal').textContent = `$${vendorTotal.toFixed(2)}`;
+            document.getElementById('purchaserTotal').textContent = `$${purchaserTotal.toFixed(2)}`;
+            document.getElementById('totalRent').textContent = `$${(vendorTotal + purchaserTotal).toFixed(2)}`;
+        }
+
+        function updatePropertyCount() {
+            const count = document.getElementById('tableBody').getElementsByTagName('tr').length;
+            document.getElementById('totalProperties').textContent = count;
+        }
+
+        function clearAll() {
+            if (confirm('This will clear all data. Are you sure?')) {
+                document.getElementById('tableBody').innerHTML = '';
+                rowCount = 0;
+                updatePropertyCount();
+                updateTotals();
+                localStorage.removeItem('rentRollData');
+                // Add 5 fresh rows
+                for (let i = 0; i < 5; i++) {
+                    addRow();
+                }
+            }
+        }
+
+        function saveData() {
+            const data = [];
+            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
+            
+            for (let row of rows) {
+                const rowNum = row.getElementsByTagName('td')[0].textContent;
+                const inputs = row.getElementsByTagName('input');
+                const selects = row.getElementsByTagName('select');
+                
+                if (inputs.length >= 5) {
+                    data.push({
+                        address: inputs[0].value,
+                        tenant: inputs[1].value,
+                        rent: inputs[2].value,
+                        frequency: selects[0].value,
+                        lastPayDate: inputs[3].value,
+                        coverUntilDate: inputs[4].value
+                    });
+                }
+            }
+            
+            localStorage.setItem('rentRollData', JSON.stringify(data));
+        }
+
+        function loadSavedData() {
+            const savedData = localStorage.getItem('rentRollData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                for (let item of data) {
+                    rowCount++;
+                    const tbody = document.getElementById('tableBody');
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${rowCount}</td>
+                        <td><input type="text" value="${item.address}" onchange="calculateRow(${rowCount}); saveData();" id="address${rowCount}"></td>
+                        <td><input type="text" value="${item.tenant}" onchange="calculateRow(${rowCount}); saveData();" id="tenant${rowCount}"></td>
+                        <td><input type="number" step="0.01" value="${item.rent}" onchange="calculateRow(${rowCount}); saveData();" id="rent${rowCount}"></td>
+                        <td>
+                            <select onchange="calculateRow(${rowCount}); saveData();" id="freq${rowCount}">
+                                <option value="">Select...</option>
+                                <option value="weekly" ${item.frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
+                                <option value="fortnightly" ${item.frequency === 'fortnightly' ? 'selected' : ''}>Fortnightly</option>
+                                <option value="monthly" ${item.frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
+                            </select>
+                        </td>
+                        <td><input type="date" value="${item.lastPayDate}" onchange="calculateRow(${rowCount}); saveData();" id="lastPay${rowCount}"></td>
+                        <td><input type="date" value="${item.coverUntilDate}" onchange="calculateRow(${rowCount}); saveData();" id="coverUntil${rowCount}"></td>
+                        <td class="currency" id="daily${rowCount}">$0.00</td>
+                        <td id="daysPre${rowCount}">0</td>
+                        <td id="daysPost${rowCount}">0</td>
+                        <td class="currency vendor-amount" id="vendor${rowCount}">$0.00</td>
+                        <td class="currency purchaser-amount" id="purchaser${rowCount}">$0.00</td>
+                        <td><button onclick="removeRow(this)" class="remove-btn">❌</button></td>
+                    `;
+                    tbody.appendChild(row);
+                    calculateRow(rowCount);
+                }
+                updatePropertyCount();
+            }
+        }
+
+        function exportToCSV() {
+            let csv = 'Property Number,Property Address,Tenant Name,Rent Amount,Frequency,Last Payment Date,Payment Covers Until,Daily Rate,Days Pre-Settlement,Days Post-Settlement,Vendor Portion,Purchaser Portion\n';
+            
+            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
+            let rowNum = 1;
+            for (let row of rows) {
+                const inputs = row.getElementsByTagName('input');
+                const selects = row.getElementsByTagName('select');
+                const cells = row.getElementsByTagName('td');
+                
+                if (inputs.length > 0 && inputs[0].value) {
+                    csv += `${rowNum},`;
+                    csv += `"${inputs[0].value}",`;
+                    csv += `"${inputs[1].value}",`;
+                    csv += `${inputs[2].value || 0},`;
+                    csv += `${selects[0].value},`;
+                    csv += `${inputs[3].value},`;
+                    csv += `${inputs[4].value},`;
+                    csv += `${cells[7].textContent.replace('$', '')},`;
+                    csv += `${cells[8].textContent},`;
+                    csv += `${cells[9].textContent},`;
+                    csv += `${cells[10].textContent.replace('$', '')},`;
+                    csv += `${cells[11].textContent.replace('$', '')}\n`;
+                    rowNum++;
+                }
+            }
+            
+            // Add summary
+            csv += '\n\nSETTLEMENT SUMMARY\n';
+            csv += `Vendor Total (Rent up to Sept 23 2025),${document.getElementById('vendorTotal').textContent}\n`;
+            csv += `Purchaser Total (Rent from Sept 24 2025),${document.getElementById('purchaserTotal').textContent}\n`;
+            csv += `Total Rent Held in Trust,${document.getElementById('totalRent').textContent}\n`;
+            csv += `\nSETTLEMENT DETAILS\n`;
+            csv += `Settlement Date,September 24 2025\n`;
+            csv += `Calculation Date,${new Date().toLocaleDateString('en-AU')}\n`;
+            csv += `Total Properties,${document.getElementById('totalProperties').textContent}\n`;
+            
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rent_roll_settlement_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
